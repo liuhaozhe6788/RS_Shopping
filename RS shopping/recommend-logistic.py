@@ -14,6 +14,7 @@ from user_feature import *
 
 # 1. 加载数据
 data = loadData()
+# print(data)  # [(user_id, brand_id, action_type, month, day), ()...]
 
 # 2. 生成训练集特征
 feature, feature_name = generateFeature('train', data)

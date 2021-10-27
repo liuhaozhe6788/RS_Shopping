@@ -27,8 +27,11 @@ def getRecommendByRule(data):
 				# 因此将最后一次交互的相差天数也作为一个特征
 				# 如我们推测7月15-8月15这一个月的购买情况，用户在7月8号跟7月12号均有交互记录
 				# 则diff_day为3（取最近的7月12，计算跟7月15的相差天数）
-		# 此处可添加其他特征
-
+		'click_30': 0,
+		'click_diff_day': 1000,
+		'buy_diff_day': 1000,
+		'fav_diff_day': 1000,
+		'cart_diff_day': 1000
 	}
 
 
@@ -44,12 +47,22 @@ def getRecommendByRule(data):
 		# 基础特征计算
 		if action_type == 0:
 			e['click'] += 1
+			if e['click_diff_day'] > getDiffDay((month, day), (7, 15)):
+				e['click_diff_day'] = getDiffDay((month, day), (7, 15))
+			if e['click_diff_day'] < 30:
+				e['click_30'] += 1
 		elif action_type == 1:
 			e['buy'] += 1
+			if e['buy_diff_day'] > getDiffDay((month, day), (7, 15)):
+				e['buy_diff_day'] = getDiffDay((month, day), (7, 15))
 		elif action_type == 2:
 			e['fav'] += 1
+			if e['fav_diff_day'] > getDiffDay((month, day), (7, 15)):
+				e['fav_diff_day'] = getDiffDay((month, day), (7, 15))
 		elif action_type == 3:
 			e['cart'] += 1
+			if e['cart_diff_day'] > getDiffDay((month, day), (7, 15)):
+				e['cart_diff_day'] = getDiffDay((month, day), (7, 15))
 
 		# 时间特征
 		diff_day = getDiffDay((month, day), (7, 15))
@@ -65,11 +78,8 @@ def getRecommendByRule(data):
 		for bid, e in bid_list.items():
 
 			# 在此处应用推荐规则，如将最近一个月内有交互，且总点击次数大于10次的，加入到推荐中
-			if e['diff_day'] < 30 and e['click'] >10:
+			if e['diff_day'] < 27 and ((e['click'] > 8 or e['click_30'] > 8) or (e['buy'] > 0 and e['buy_diff_day'] > 30) or (e['cart'] > 0 and e['cart_diff_day'] < 5)):
 				# 加入到推荐列表中，注意加入的是元组 (uid, bid)，有两个括号
-				R.append( (uid, bid) )
-
-			# 此处可以添加其他规则，重复加入到推荐列表也没关系，判分时会去重
-
+				R.append((uid, bid))
 
 	return R

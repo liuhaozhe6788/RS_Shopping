@@ -139,7 +139,7 @@ def getModelByLogistic(feature, feature_name):
 			# 这边的属性需要都转为str类型
 			item = [str(uid), str(bid)]
 
-			# flag判断user是否已经购买商品
+			# flag判断user是否已经购买商品,flag=1表示购买，flag=0表示没有购买
 			if uid in buy and bid in buy[uid]:
 				item.append(str(1))
 			else:
@@ -156,6 +156,7 @@ def getModelByLogistic(feature, feature_name):
 	train = pd.read_csv("./data/train.txt")
 	train_data = train[feature_name]
 	train_data['intercept'] = 1.0
+	# print(train_data.head())
 
 	logit = sm.Logit(train['flag'], train_data)
 	model = logit.fit()
@@ -194,13 +195,13 @@ def getRecommendByLogistic(model, feature, feature_name):
 		uid, bid, flag = str(int(term[0])), str(int(term[1])), term[-1]
 		pick.append((uid, bid ,flag))
 
-	pick.sort(key = lambda x:x[2], reverse = True)
+	pick.sort(key = lambda x:x[2], reverse = True)  # sort flag in descending order
+	# print(pick[0])
 
 	# 取前1400个作为推荐
 	recommend = []
 	for item in pick[0:1400]:
-		recommend.append( (item[0], item[1]) )
-
+		recommend.append((item[0], item[1]))
 
 	print ("\n所使用的特征: ", feature_name)
 
