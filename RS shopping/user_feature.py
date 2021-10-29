@@ -24,11 +24,12 @@ def generateFeature(classify, data):
 							# 因此将最后一次交互的相差天数也作为一个特征
 							# 如我们推测7月15-8月15这一个月的购买情况，用户在7月8号跟7月12号均有交互记录
 							# 则diff_day为3（取最近的7月12，计算跟7月15的相差天数）
+		'furthest_diff_day': 0
 	}
 
 	# 计算复杂的特征时，上面定义的item中可能会有一些中间特征
 	# 所以需要指定只用于逻辑回归的特征
-	feature_name = ['click', 'buy', 'fav', 'cart', 'diff_day']
+	feature_name = ['click', 'buy', 'cart', 'diff_day']
 
 
 	# 1. 计算用户特征
@@ -59,6 +60,8 @@ def generateFeature(classify, data):
 		diff_day = getDiffDayByClass(classify, (month, day))
 		if diff_day < e['diff_day']:
 			e['diff_day'] = diff_day
+		elif diff_day > e['furthest_diff_day']:
+			e['furthest_diff_day'] = diff_day
 
 		# 计算其他特征
 

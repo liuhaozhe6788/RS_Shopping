@@ -28,6 +28,7 @@ def getRecommendByRule(data):
 				# 如我们推测7月15-8月15这一个月的购买情况，用户在7月8号跟7月12号均有交互记录
 				# 则diff_day为3（取最近的7月12，计算跟7月15的相差天数）
 		'click_diff_day': 1000,
+		'buy_furthest_diff_day': 0,
 		'buy_diff_day': 1000,
 		'fav_diff_day': 1000,
 		'cart_diff_day': 1000
@@ -52,6 +53,8 @@ def getRecommendByRule(data):
 			e['buy'] += 1
 			if e['buy_diff_day'] > getDiffDay((month, day), (7, 15)):
 				e['buy_diff_day'] = getDiffDay((month, day), (7, 15))
+			if e['buy_furthest_diff_day'] < getDiffDay((month, day), (7, 15)):
+				e['buy_furthest_diff_day'] = getDiffDay((month, day), (7, 15))
 		elif action_type == 2:
 			e['fav'] += 1
 			if e['fav_diff_day'] > getDiffDay((month, day), (7, 15)):
@@ -73,10 +76,11 @@ def getRecommendByRule(data):
 	# 2. 根据特征进行筛选
 	for uid, bid_list in F.items():
 		for bid, e in bid_list.items():
-
 			# 在此处应用推荐规则，如将最近一个月内有交互，且总点击次数大于10次的，加入到推荐中
-			if e['diff_day'] < 27 and ((e['click'] > 8) or (e['buy'] == 1 and 34 > e['buy_diff_day'] > 30) or (e['buy'] > 1 and e['buy_diff_day'] < 30) or (e['cart'] > 0 and e['cart_diff_day'] < 5)):
+			if (e['diff_day'] < 27) and ((e['click'] > 8) or (e['buy'] == 1 and 34 > e['buy_diff_day'] > 30) or (e['buy'] == 2 and e['buy_diff_day'] < 22) or (e['cart'] > 0 and e['cart_diff_day'] < 5)):
 				# 加入到推荐列表中，注意加入的是元组 (uid, bid)，有两个括号
+				R.append((uid, bid))
+			elif e['buy'] == 2 and e['buy_furthest_diff_day'] - e['buy_diff_day'] > 10:
 				R.append((uid, bid))
 
 	return R
